@@ -2,9 +2,10 @@ const { createClient } = require('@libsql/client');
 const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
-// Connect to Turso (or fallback to local file for dev if needed, though we prefer Turso)
+// Connect to Turso (or fallback to memory on Vercel, or local file for dev)
+const isVercel = process.env.VERCEL || process.env.VERCEL_ENV;
 const db = createClient({
-  url: process.env.TURSO_DATABASE_URL || 'file:nexus.db',
+  url: process.env.TURSO_DATABASE_URL || (isVercel ? 'file::memory:' : 'file:nexus.db'),
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
