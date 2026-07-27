@@ -21,6 +21,7 @@ app.use('/api', require('./api/chat'));
 app.use('/api/settings', require('./api/settings'));
 app.use('/api/usage', require('./api/usage'));
 app.use('/api/battle', require('./api/battle'));
+app.use('/api/checkout', require('./api/checkout'));
 
 // Health check
 app.get('/api/health', (req, res) => {

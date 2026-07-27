@@ -4,7 +4,7 @@ function renderNavbar() {
   return `
   <nav class="navbar" id="navbar">
     <div class="container">
-      <a href="index.html" class="nav-logo">
+      <a href="/" class="nav-logo">
         <span class="logo-icon">✦</span>
         <span>NexusAI</span>
       </a>
@@ -39,7 +39,7 @@ function renderFooter() {
     <div class="footer-container">
       <div class="footer-top">
         <div class="footer-brand">
-          <a href="index.html" class="footer-logo">
+          <a href="/" class="footer-logo">
             <span class="logo-icon">✦</span>
             <span>NexusAI</span>
           </a>
