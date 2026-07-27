@@ -1,4 +1,4 @@
-# Kombat AI ✦
+# Kombat AI 
 
 **One Platform. Every AI Model.**
 
