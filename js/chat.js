@@ -259,9 +259,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const userMessages = document.querySelectorAll('.user-msg .msg-content p');
         const lastUserMsg = userMessages[userMessages.length - 1]?.textContent || '';
 
+        const apiKeys = localStorage.getItem('nexus_api_keys') || '{}';
         const response = await fetch('/api/chat', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-api-keys': apiKeys 
+            },
             body: JSON.stringify({
                 message: lastUserMsg,
                 model: currentModelId,

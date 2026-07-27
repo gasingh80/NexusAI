@@ -65,17 +65,23 @@ router.post('/chat', async (req, res) => {
     // Save user message
     await addMessage(convId, 'user', message);
 
+    // Parse request keys
+    let requestKeys = {};
+    try {
+      if (req.headers['x-api-keys']) requestKeys = JSON.parse(req.headers['x-api-keys']);
+    } catch(e) {}
+
     // Determine which model to use
     let selectedModel = model;
     let routerInfo = null;
 
     if (model === 'auto' || !model) {
-      routerInfo = await smartRoute(message);
+      routerInfo = await smartRoute(message, requestKeys);
       selectedModel = routerInfo.model;
     }
 
     // Check if we have an API key
-    if (!(await hasApiKey(selectedModel))) {
+    if (!(await hasApiKey(selectedModel, requestKeys))) {
       return res.status(400).json({
         error: `No API key for ${selectedModel}. Add your key in Settings.`,
         needsKey: true,
@@ -103,7 +109,7 @@ router.post('/chat', async (req, res) => {
     let fullResponse = '';
     let usage = { input: 0, output: 0 };
 
-    for await (const chunk of streamResponse(selectedModel, history)) {
+    for await (const chunk of streamResponse(selectedModel, history, requestKeys)) {
       if (chunk.type === 'token') {
         fullResponse += chunk.content;
         res.write(`data: ${JSON.stringify({ type: 'token', content: chunk.content })}\n\n`);

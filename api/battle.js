@@ -14,11 +14,17 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    // Parse request keys
+    let requestKeys = {};
+    try {
+      if (req.headers['x-api-keys']) requestKeys = JSON.parse(req.headers['x-api-keys']);
+    } catch(e) {}
+
     // Check which models have keys
     const available = [];
     const missing = [];
     for (const m of models) {
-      if (await hasApiKey(m)) available.push(m);
+      if (await hasApiKey(m, requestKeys)) available.push(m);
       else missing.push(m);
     }
 
@@ -43,7 +49,7 @@ router.post('/', async (req, res) => {
         let fullResponse = '';
         let usage = { input: 0, output: 0 };
 
-        for await (const chunk of streamResponse(modelId, messages)) {
+        for await (const chunk of streamResponse(modelId, messages, requestKeys)) {
           if (chunk.type === 'token') {
             fullResponse += chunk.content;
             res.write(`data: ${JSON.stringify({ type: 'token', model: modelId, content: chunk.content })}\n\n`);

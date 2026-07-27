@@ -34,18 +34,22 @@ function calculateCost(model, inputTokens, outputTokens) {
   return (inputTokens / 1_000_000) * pricing.input + (outputTokens / 1_000_000) * pricing.output;
 }
 
-async function getApiKey(provider) {
-  const keyMap = {
-    openai: 'apikey_openai',
-    anthropic: 'apikey_anthropic',
-    google: 'apikey_google',
+async function getApiKey(provider, requestKeys = {}) {
+  // 1. Check request headers (Client-Side BYOK)
+  if (requestKeys[provider]) return requestKeys[provider];
+  
+  // 2. Fallback to Environment Variables (Global Owner Keys)
+  const envMap = {
+    openai: process.env.OPENAI_API_KEY,
+    anthropic: process.env.ANTHROPIC_API_KEY,
+    google: process.env.GEMINI_API_KEY,
   };
-  return await getSetting(keyMap[provider]) || null;
+  return envMap[provider] || null;
 }
 
-async function hasApiKey(model) {
+async function hasApiKey(model, requestKeys = {}) {
   const provider = MODEL_PROVIDERS[model];
-  const key = await getApiKey(provider);
+  const key = await getApiKey(provider, requestKeys);
   return !!key;
 }
 
@@ -60,7 +64,7 @@ const TASK_CATEGORIES = [
   { id: 'summarize', bestModel: 'claude-haiku', fallback: 'gpt-4o-mini', keywords: ['summarize','summary','brief','tldr','key points','condense'] },
 ];
 
-async function smartRoute(prompt) {
+async function smartRoute(prompt, requestKeys = {}) {
   const lower = prompt.toLowerCase();
   let bestMatch = null, bestScore = 0;
   for (const cat of TASK_CATEGORIES) {
@@ -72,12 +76,12 @@ async function smartRoute(prompt) {
   
   // Check if we have a key for the best model, otherwise use fallback
   let selectedModel = category.bestModel;
-  if (!(await hasApiKey(selectedModel))) {
+  if (!(await hasApiKey(selectedModel, requestKeys))) {
     selectedModel = category.fallback;
-    if (!(await hasApiKey(selectedModel))) {
+    if (!(await hasApiKey(selectedModel, requestKeys))) {
       // Find any model with a key
       for (const [model] of Object.entries(MODEL_PROVIDERS)) {
-        if (await hasApiKey(model)) { selectedModel = model; break; }
+        if (await hasApiKey(model, requestKeys)) { selectedModel = model; break; }
       }
     }
   }
@@ -86,9 +90,9 @@ async function smartRoute(prompt) {
   return { model: selectedModel, category: category.id, confidence };
 }
 
-async function* streamResponse(model, messages) {
+async function* streamResponse(model, messages, requestKeys = {}) {
   const provider = MODEL_PROVIDERS[model];
-  const apiKey = await getApiKey(provider);
+  const apiKey = await getApiKey(provider, requestKeys);
 
   if (!apiKey) {
     throw new Error(`No API key configured for ${provider}. Please add your key in Settings.`);

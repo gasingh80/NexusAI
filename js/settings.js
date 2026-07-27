@@ -10,20 +10,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const list = document.getElementById('api-keys-list');
 
-    // Fetch saved settings from backend
-    let savedSettings = {};
+    // Load keys from Local Storage
+    let savedKeys = {};
     try {
-        const res = await fetch('/api/settings');
-        if (res.ok) {
-            savedSettings = await res.json();
-        }
+        const stored = localStorage.getItem('nexus_api_keys');
+        if (stored) savedKeys = JSON.parse(stored);
     } catch (e) {
-        console.error('Failed to load settings:', e);
+        console.error('Failed to parse local keys', e);
     }
 
     providers.forEach(p => {
-        const savedKey = savedSettings[`apikey_${p.id}`] || '';
-        const isConnected = savedSettings[`apikey_${p.id}_configured`] || false;
+        const savedKey = savedKeys[p.id] || '';
+        const isConnected = !!savedKey; // We assume it's connected if we have a key locally
 
         const row = document.createElement('div');
         row.className = 'api-key-row';
@@ -63,20 +61,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const val = input.value.trim();
             const dot = document.getElementById(`dot-${id}`);
             
-            e.target.textContent = 'Saving...';
+            e.target.textContent = 'Verifying...';
             e.target.disabled = true;
 
-            if (val && !val.includes('...')) {
+            if (val) {
                 try {
-                    // Save key
-                    await fetch('/api/settings/apikey', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ provider: id, key: val })
-                    });
-                    
-                    // Verify key
-                    e.target.textContent = 'Verifying...';
+                    // Verify key via backend (we pass the key explicitly)
                     const verifyRes = await fetch('/api/settings/verify-key', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -90,6 +80,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         e.target.textContent = 'Verified ✓';
                         e.target.style.borderColor = 'var(--success)';
                         e.target.style.color = 'var(--success)';
+
+                        // Save securely in Local Storage!
+                        let keys = JSON.parse(localStorage.getItem('nexus_api_keys') || '{}');
+                        keys[id] = val;
+                        localStorage.setItem('nexus_api_keys', JSON.stringify(keys));
                     } else {
                         dot.classList.remove('connected');
                         e.target.textContent = 'Invalid Key';
@@ -106,22 +101,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }, 3000);
 
                 } catch (err) {
-                    console.error('Error saving key:', err);
+                    console.error('Error verifying key:', err);
                     e.target.textContent = 'Error';
                     setTimeout(() => {
                         e.target.textContent = 'Save & Verify';
                         e.target.disabled = false;
                     }, 2000);
                 }
-            } else if (!val) {
-                // Delete key
-                await fetch(`/api/settings/apikey/${id}`, { method: 'DELETE' });
+            } else {
+                // Delete key from Local Storage
+                let keys = JSON.parse(localStorage.getItem('nexus_api_keys') || '{}');
+                delete keys[id];
+                localStorage.setItem('nexus_api_keys', JSON.stringify(keys));
+
                 dot.classList.remove('connected');
                 e.target.textContent = 'Removed';
-                e.target.disabled = false;
-                setTimeout(() => e.target.textContent = 'Save & Verify', 2000);
-            } else {
-                e.target.textContent = 'Already Saved';
                 e.target.disabled = false;
                 setTimeout(() => e.target.textContent = 'Save & Verify', 2000);
             }

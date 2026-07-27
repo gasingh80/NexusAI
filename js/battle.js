@@ -115,9 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const startTime = Date.now();
 
         // Try API first
+        const apiKeys = localStorage.getItem('nexus_api_keys') || '{}';
         fetch('/api/battle', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-api-keys': apiKeys
+            },
             body: JSON.stringify({ prompt, models: selectedModels })
         }).then(async res => {
             if (!res.ok) throw new Error('API failed');
