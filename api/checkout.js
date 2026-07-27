@@ -1,58 +1,62 @@
 const express = require('express');
-const Stripe = require('stripe');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 const router = express.Router();
 
-// Initialize Stripe with secret key from environment variables
-// This will work when deployed to Vercel with the STRIPE_SECRET_KEY env var
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key_for_local_dev');
+// Initialize Razorpay
+// Requires RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in environment variables
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock_key',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'mock_secret'
+});
 
 router.post('/', async (req, res) => {
   try {
-    const { plan, interval } = req.body; // plan: 'pro' or 'team', interval: 'monthly' or 'annual'
-
+    const { plan, interval, currency } = req.body; // currency: 'INR' or 'USD'
+    
     let priceAmount = 0;
-    let productName = '';
+    const isUSD = currency === 'USD';
 
-    // Calculate price based on plan and interval (in INR)
+    // Calculate price based on plan, interval, and currency
     if (plan === 'pro') {
-      productName = 'Kombat AI Pro';
-      priceAmount = interval === 'annual' ? 239 * 12 : 299;
+      if (isUSD) {
+        priceAmount = interval === 'annual' ? 7 * 12 : 9;
+      } else {
+        priceAmount = interval === 'annual' ? 159 * 12 : 199;
+      }
     } else if (plan === 'team') {
-      productName = 'Kombat AI Team';
-      priceAmount = interval === 'annual' ? 479 * 12 : 599;
+      if (isUSD) {
+        priceAmount = interval === 'annual' ? 15 * 12 : 19;
+      } else {
+        priceAmount = interval === 'annual' ? 399 * 12 : 499;
+      }
     } else {
       return res.status(400).json({ error: 'Invalid plan selected' });
     }
 
-    // Determine the base URL for the success/cancel redirects
-    const baseUrl = req.headers.origin || `http://${req.headers.host}`;
+    // Razorpay expects amount in smallest currency unit (paise/cents)
+    const amountInSubunits = priceAmount * 100;
 
-    // Create Stripe Checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'inr',
-            product_data: {
-              name: productName,
-              description: `Subscription to ${productName} (${interval})`,
-            },
-            unit_amount: priceAmount * 100, // Stripe expects amount in paise (cents)
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment', // using payment mode for simplicity (could be 'subscription' if we had recurring setup)
-      success_url: `${baseUrl}/success.html?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
-      cancel_url: `${baseUrl}/pricing.html?canceled=true`,
+    const options = {
+      amount: amountInSubunits,
+      currency: isUSD ? 'USD' : 'INR',
+      receipt: `receipt_${crypto.randomBytes(10).toString('hex')}`,
+      payment_capture: 1 // Auto capture
+    };
+
+    // Create Razorpay Order
+    const order = await razorpay.orders.create(options);
+    
+    res.json({ 
+      orderId: order.id, 
+      amount: order.amount, 
+      currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock_key'
     });
-
-    res.json({ url: session.url });
   } catch (err) {
-    console.error('Stripe Checkout Error:', err);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+    console.error('Razorpay Order Error:', err);
+    res.status(500).json({ error: 'Failed to create checkout order' });
   }
 });
 

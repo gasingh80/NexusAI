@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/pricing.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <div id="navbar-slot"></div>
@@ -51,7 +52,9 @@
                 <h3>Pro</h3>
                 <div class="price">
                     <span class="currency">₹</span>
-                    <span class="amount" data-monthly="299" data-annual="239">299</span>
+                    <span class="amount" id="pro-amount" 
+                        data-inr-monthly="199" data-inr-annual="159" 
+                        data-usd-monthly="9" data-usd-annual="7">199</span>
                     <span class="period">/mo</span>
                 </div>
                 <p class="desc">For power users and developers.</p>
@@ -71,7 +74,9 @@
                 <h3>Team</h3>
                 <div class="price">
                     <span class="currency">₹</span>
-                    <span class="amount" data-monthly="599" data-annual="479">599</span>
+                    <span class="amount" id="team-amount" 
+                        data-inr-monthly="499" data-inr-annual="399" 
+                        data-usd-monthly="19" data-usd-annual="15">499</span>
                     <span class="period">/mo per user</span>
                 </div>
                 <p class="desc">For teams scaling AI workflows.</p>
