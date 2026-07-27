@@ -4,7 +4,6 @@
 
 Kombat AI is a premium, all-in-one AI platform that connects you to the latest and greatest language models (GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, DeepSeek-V3, Mistral, and Llama). Instead of paying for multiple subscriptions, Kombat AI brings them all into a single, unified interface.
 
-![Kombat AI Screenshot](assets/screenshot.png)
 
 ## ✨ Core Features
 
