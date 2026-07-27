@@ -22,6 +22,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "google-auth-library": "^10.9.1",
     "openai": "^6.49.0",
     "razorpay": "^2.9.8",
     "sql.js": "^1.14.1",

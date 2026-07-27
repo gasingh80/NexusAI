@@ -51,6 +51,76 @@
   .nav-actions .btn-outline { display: none; }
 }
 
+/* ======= USER MENU (Auth) ======= */
+.google-signin-container { display: flex; align-items: center; }
+.user-menu { position: relative; }
+.user-menu-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 100px; padding: 4px 12px 4px 4px;
+  cursor: pointer; transition: all var(--transition-fast);
+  color: var(--text-primary); font-size: 0.85rem; font-weight: 500;
+}
+.user-menu-btn:hover { border-color: var(--brand-primary); background: var(--bg-glass); }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.user-avatar-lg { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.dropdown-arrow { font-size: 0.7rem; color: var(--text-tertiary); }
+
+.user-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 8px;
+  min-width: 260px; z-index: var(--z-dropdown);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+  animation: fadeInDown 0.15s ease;
+}
+.user-dropdown.hidden { display: none; }
+.user-dropdown-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; border-radius: var(--radius-md);
+}
+.user-dropdown-name { font-weight: 600; font-size: 0.9rem; }
+.user-dropdown-email { font-size: 0.8rem; color: var(--text-tertiary); }
+.user-dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.user-dropdown-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: var(--radius-md);
+  font-size: 0.85rem; color: var(--text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+  width: 100%; border: none; background: none; text-align: left;
+  text-decoration: none;
+}
+.user-dropdown-item:hover { background: var(--bg-glass); color: var(--text-primary); }
+.user-dropdown-logout { color: var(--danger); }
+.user-dropdown-logout:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
+
+.mobile-logout-btn {
+  display: block; padding: 16px; font-size: 1.1rem;
+  color: var(--danger); border: none; background: none;
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  text-align: left; width: 100%;
+}
+
+.plan-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 100px;
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+  background: var(--brand-gradient); color: white; margin-top: 4px;
+}
+
+.account-card {
+  display: flex; align-items: center; gap: 16px;
+  padding: 24px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.account-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+.account-info h3 { font-size: 1.1rem; margin-bottom: 2px; }
+.account-info p { color: var(--text-tertiary); font-size: 0.9rem; }
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ======= FOOTER ======= */
 .footer {
   background: var(--bg-secondary);

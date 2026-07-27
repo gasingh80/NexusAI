@@ -1,8 +1,13 @@
 const express = require('express');
 const { createConversation, getConversations, getConversation, updateConversation, deleteConversation, addMessage, getMessages, trackUsage } = require('../db/database');
 const { streamResponse, smartRoute, calculateCost, hasApiKey, MODEL_PRICING } = require('../llm/router');
+const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
+
+// All chat routes require authentication
+router.use('/conversations', requireAuth);
+router.use('/chat', requireAuth);
 
 // List conversations
 router.get('/conversations', async (req, res) => {
@@ -65,25 +70,19 @@ router.post('/chat', async (req, res) => {
     // Save user message
     await addMessage(convId, 'user', message);
 
-    // Parse request keys
-    let requestKeys = {};
-    try {
-      if (req.headers['x-api-keys']) requestKeys = JSON.parse(req.headers['x-api-keys']);
-    } catch(e) {}
-
     // Determine which model to use
     let selectedModel = model;
     let routerInfo = null;
 
     if (model === 'auto' || !model) {
-      routerInfo = await smartRoute(message, requestKeys);
+      routerInfo = smartRoute(message);
       selectedModel = routerInfo.model;
     }
 
     // Check if we have an API key
-    if (!(await hasApiKey(selectedModel, requestKeys))) {
+    if (!hasApiKey(selectedModel)) {
       return res.status(400).json({
-        error: `No API key for ${selectedModel}. Add your key in Settings.`,
+        error: `Model ${selectedModel} is not available yet. Try a different model.`,
         needsKey: true,
         model: selectedModel,
       });
@@ -109,7 +108,7 @@ router.post('/chat', async (req, res) => {
     let fullResponse = '';
     let usage = { input: 0, output: 0 };
 
-    for await (const chunk of streamResponse(selectedModel, history, requestKeys)) {
+    for await (const chunk of streamResponse(selectedModel, history)) {
       if (chunk.type === 'token') {
         fullResponse += chunk.content;
         res.write(`data: ${JSON.stringify({ type: 'token', content: chunk.content })}\n\n`);

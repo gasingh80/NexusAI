@@ -1,7 +1,6 @@
 const { streamOpenAI, verifyKey: verifyOpenAI } = require('./openai-adapter');
 const { streamAnthropic, verifyKey: verifyAnthropic } = require('./anthropic-adapter');
 const { streamGemini, verifyKey: verifyGemini } = require('./gemini-adapter');
-const { getSetting } = require('../db/database');
 
 // Model to provider mapping
 const MODEL_PROVIDERS = {
@@ -34,11 +33,8 @@ function calculateCost(model, inputTokens, outputTokens) {
   return (inputTokens / 1_000_000) * pricing.input + (outputTokens / 1_000_000) * pricing.output;
 }
 
-async function getApiKey(provider, requestKeys = {}) {
-  // 1. Check request headers (Client-Side BYOK)
-  if (requestKeys[provider]) return requestKeys[provider];
-  
-  // 2. Fallback to Environment Variables (Global Owner Keys)
+// Get API key from environment variables (platform-provided keys)
+function getApiKey(provider) {
   const envMap = {
     openai: process.env.OPENAI_API_KEY,
     anthropic: process.env.ANTHROPIC_API_KEY,
@@ -47,10 +43,9 @@ async function getApiKey(provider, requestKeys = {}) {
   return envMap[provider] || null;
 }
 
-async function hasApiKey(model, requestKeys = {}) {
+function hasApiKey(model) {
   const provider = MODEL_PROVIDERS[model];
-  const key = await getApiKey(provider, requestKeys);
-  return !!key;
+  return !!getApiKey(provider);
 }
 
 // Smart Router — classify task and select best model
@@ -59,12 +54,12 @@ const TASK_CATEGORIES = [
   { id: 'creative', bestModel: 'claude-sonnet', fallback: 'gpt-4o', keywords: ['write','story','poem','creative','blog','article','copy','tone','narrative','essay','describe'] },
   { id: 'analysis', bestModel: 'gemini-pro', fallback: 'gpt-4o', keywords: ['analyze','research','data','compare','trend','report','study','statistics','market'] },
   { id: 'math', bestModel: 'deepseek-v3', fallback: 'gpt-4o-mini', keywords: ['math','calculate','equation','solve','proof','formula','algorithm'] },
-  { id: 'general', bestModel: 'gpt-4o-mini', fallback: 'gemini-flash', keywords: ['explain','help','what','how','tell','list','suggest'] },
+  { id: 'general', bestModel: 'gemini-flash', fallback: 'gpt-4o-mini', keywords: ['explain','help','what','how','tell','list','suggest'] },
   { id: 'translation', bestModel: 'mistral-large', fallback: 'gpt-4o', keywords: ['translate','language','hindi','spanish','french','german'] },
   { id: 'summarize', bestModel: 'claude-haiku', fallback: 'gpt-4o-mini', keywords: ['summarize','summary','brief','tldr','key points','condense'] },
 ];
 
-async function smartRoute(prompt, requestKeys = {}) {
+function smartRoute(prompt) {
   const lower = prompt.toLowerCase();
   let bestMatch = null, bestScore = 0;
   for (const cat of TASK_CATEGORIES) {
@@ -76,12 +71,12 @@ async function smartRoute(prompt, requestKeys = {}) {
   
   // Check if we have a key for the best model, otherwise use fallback
   let selectedModel = category.bestModel;
-  if (!(await hasApiKey(selectedModel, requestKeys))) {
+  if (!hasApiKey(selectedModel)) {
     selectedModel = category.fallback;
-    if (!(await hasApiKey(selectedModel, requestKeys))) {
+    if (!hasApiKey(selectedModel)) {
       // Find any model with a key
       for (const [model] of Object.entries(MODEL_PROVIDERS)) {
-        if (await hasApiKey(model, requestKeys)) { selectedModel = model; break; }
+        if (hasApiKey(model)) { selectedModel = model; break; }
       }
     }
   }
@@ -90,12 +85,12 @@ async function smartRoute(prompt, requestKeys = {}) {
   return { model: selectedModel, category: category.id, confidence };
 }
 
-async function* streamResponse(model, messages, requestKeys = {}) {
+async function* streamResponse(model, messages) {
   const provider = MODEL_PROVIDERS[model];
-  const apiKey = await getApiKey(provider, requestKeys);
+  const apiKey = getApiKey(provider);
 
   if (!apiKey) {
-    throw new Error(`No API key configured for ${provider}. Please add your key in Settings.`);
+    throw new Error(`Model ${model} is not available. The platform owner needs to configure the ${provider} API key.`);
   }
 
   switch (provider) {
@@ -122,6 +117,14 @@ async function verifyApiKey(provider, apiKey) {
   }
 }
 
+// Get list of available models (ones that have API keys configured)
+function getAvailableModels() {
+  return Object.entries(MODEL_PROVIDERS)
+    .filter(([model]) => hasApiKey(model))
+    .map(([model, provider]) => ({ model, provider }));
+}
+
 module.exports = {
-  streamResponse, smartRoute, calculateCost, hasApiKey, verifyApiKey, MODEL_PROVIDERS, MODEL_PRICING,
+  streamResponse, smartRoute, calculateCost, hasApiKey, verifyApiKey, 
+  getAvailableModels, MODEL_PROVIDERS, MODEL_PRICING,
 };

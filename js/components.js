@@ -1,6 +1,38 @@
 /* ======= SHARED COMPONENTS (Navbar + Footer) ======= */
 
 function renderNavbar() {
+  // Check if user is logged in
+  const savedUser = localStorage.getItem('kombat_user');
+  let user = null;
+  try { if (savedUser) user = JSON.parse(savedUser); } catch(e) {}
+
+  const authSection = user ? `
+    <div class="user-menu">
+      <button class="user-menu-btn" id="user-menu-btn" onclick="toggleUserMenu()">
+        <img src="${user.picture}" alt="${user.name}" class="user-avatar" referrerpolicy="no-referrer" />
+        <span class="user-name hide-mobile">${user.name.split(' ')[0]}</span>
+        <span class="dropdown-arrow">▾</span>
+      </button>
+      <div class="user-dropdown hidden" id="user-dropdown">
+        <div class="user-dropdown-header">
+          <img src="${user.picture}" alt="${user.name}" class="user-avatar-lg" referrerpolicy="no-referrer" />
+          <div>
+            <div class="user-dropdown-name">${user.name}</div>
+            <div class="user-dropdown-email">${user.email}</div>
+          </div>
+        </div>
+        <div class="user-dropdown-divider"></div>
+        <a href="settings.html" class="user-dropdown-item">⚙️ Settings</a>
+        <a href="dashboard.html" class="user-dropdown-item">📊 Dashboard</a>
+        <div class="user-dropdown-divider"></div>
+        <button class="user-dropdown-item user-dropdown-logout" onclick="KombatAuth.logout()">🚪 Sign Out</button>
+      </div>
+    </div>
+  ` : `
+    <div id="google-signin-btn" class="google-signin-container"></div>
+    <a href="#" class="btn btn-primary btn-sm hide-mobile" onclick="scrollToSignIn(event)">Get Started Free</a>
+  `;
+
   return `
   <nav class="navbar" id="navbar">
     <div class="container">
@@ -15,8 +47,7 @@ function renderNavbar() {
         <a href="pricing.html">Pricing</a>
       </div>
       <div class="nav-actions">
-        <a href="settings.html" class="btn btn-outline btn-sm hide-mobile">Settings</a>
-        <a href="chat.html" class="btn btn-primary btn-sm">Get Started Free</a>
+        ${authSection}
         <div class="hamburger hide-desktop" id="hamburger" onclick="toggleMobileMenu()">
           <span></span><span></span><span></span>
         </div>
@@ -28,6 +59,7 @@ function renderNavbar() {
       <a href="dashboard.html">Dashboard</a>
       <a href="pricing.html">Pricing</a>
       <a href="settings.html">Settings</a>
+      ${user ? `<button class="mobile-logout-btn" onclick="KombatAuth.logout()">Sign Out</button>` : ''}
     </div>
   </nav>`;
 }
@@ -99,6 +131,26 @@ function toggleMobileMenu() {
   if (menu) menu.classList.toggle('active');
 }
 
+function toggleUserMenu() {
+  const dropdown = document.getElementById('user-dropdown');
+  if (dropdown) dropdown.classList.toggle('hidden');
+}
+
+// Close user dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('user-dropdown');
+  const btn = document.getElementById('user-menu-btn');
+  if (dropdown && btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.add('hidden');
+  }
+});
+
+function scrollToSignIn(e) {
+  e.preventDefault();
+  const btn = document.getElementById('google-signin-btn');
+  if (btn) btn.scrollIntoView({ behavior: 'smooth' });
+}
+
 /* Inject Navbar + Footer into page */
 function initComponents() {
   const navSlot = document.getElementById('navbar-slot');
@@ -106,6 +158,13 @@ function initComponents() {
   if (navSlot) navSlot.innerHTML = renderNavbar();
   if (footerSlot) footerSlot.innerHTML = renderFooter();
   initNavbar();
+
+  // Re-render Google button after navbar is injected
+  setTimeout(() => {
+    if (typeof KombatAuth !== 'undefined') {
+      KombatAuth.renderGoogleButton();
+    }
+  }, 500);
 }
 
 document.addEventListener('DOMContentLoaded', initComponents);

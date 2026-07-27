@@ -115,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const startTime = Date.now();
 
         // Try API first
-        const apiKeys = localStorage.getItem('nexus_api_keys') || '{}';
+        const authHeaders = typeof KombatAuth !== 'undefined' ? KombatAuth.getAuthHeaders() : {};
         fetch('/api/battle', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'x-api-keys': apiKeys
+                ...authHeaders
             },
             body: JSON.stringify({ prompt, models: selectedModels })
         }).then(async res => {

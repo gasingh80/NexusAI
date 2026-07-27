@@ -256,15 +256,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function tryRealAPI(msgId, model, container) {
+        // Check if user is logged in
+        if (typeof KombatAuth !== 'undefined' && !KombatAuth.isLoggedIn()) {
+            throw new Error('Please sign in to chat');
+        }
+
         const userMessages = document.querySelectorAll('.user-msg .msg-content p');
         const lastUserMsg = userMessages[userMessages.length - 1]?.textContent || '';
 
-        const apiKeys = localStorage.getItem('nexus_api_keys') || '{}';
+        const authHeaders = typeof KombatAuth !== 'undefined' ? KombatAuth.getAuthHeaders() : {};
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'x-api-keys': apiKeys 
+                ...authHeaders
             },
             body: JSON.stringify({
                 message: lastUserMsg,

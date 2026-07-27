@@ -17,6 +17,7 @@ app.use(express.static(path.join(__dirname), {
 }));
 
 // API Routes
+app.use('/api/auth', require('./api/auth'));
 app.use('/api', require('./api/chat'));
 app.use('/api/settings', require('./api/settings'));
 app.use('/api/usage', require('./api/usage'));

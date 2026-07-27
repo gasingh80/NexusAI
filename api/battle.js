@@ -1,11 +1,12 @@
 const express = require('express');
 const { streamResponse, calculateCost, hasApiKey } = require('../llm/router');
 const { trackUsage } = require('../db/database');
+const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Battle: stream multiple models simultaneously
-router.post('/', async (req, res) => {
+// Battle requires authentication
+router.post('/', requireAuth, async (req, res) => {
   const { prompt, models } = req.body;
 
   if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
@@ -14,23 +15,17 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Parse request keys
-    let requestKeys = {};
-    try {
-      if (req.headers['x-api-keys']) requestKeys = JSON.parse(req.headers['x-api-keys']);
-    } catch(e) {}
-
     // Check which models have keys
     const available = [];
     const missing = [];
     for (const m of models) {
-      if (await hasApiKey(m, requestKeys)) available.push(m);
+      if (hasApiKey(m)) available.push(m);
       else missing.push(m);
     }
 
     if (available.length < 2) {
       return res.status(400).json({
-        error: `Need API keys for at least 2 models. Configure keys in Settings.`,
+        error: `Not enough models available. Only ${available.length} model(s) configured.`,
         configured: available,
         missing: missing,
       });
@@ -49,7 +44,7 @@ router.post('/', async (req, res) => {
         let fullResponse = '';
         let usage = { input: 0, output: 0 };
 
-        for await (const chunk of streamResponse(modelId, messages, requestKeys)) {
+        for await (const chunk of streamResponse(modelId, messages)) {
           if (chunk.type === 'token') {
             fullResponse += chunk.content;
             res.write(`data: ${JSON.stringify({ type: 'token', model: modelId, content: chunk.content })}\n\n`);
