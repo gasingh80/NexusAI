@@ -4,8 +4,8 @@ async function* streamGemini(apiKey, model, messages) {
   const genAI = new GoogleGenerativeAI(apiKey);
 
   const modelMap = {
-    'gemini-pro': 'gemini-2.5-pro-preview-06-05',
-    'gemini-flash': 'gemini-2.5-flash-preview-05-20',
+    'gemini-pro': 'gemini-1.5-pro',
+    'gemini-flash': 'gemini-1.5-flash',
   };
   const actualModel = modelMap[model] || model;
 
@@ -58,7 +58,7 @@ async function* streamGemini(apiKey, model, messages) {
 async function verifyKey(apiKey) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     await model.generateContent('Hi');
     return { valid: true };
   } catch (err) {
