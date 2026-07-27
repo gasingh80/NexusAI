@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const verifyRes = await fetch('/api/settings/verify-key', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ provider: id })
+                        body: JSON.stringify({ provider: id, key: val })
                     });
                     
                     const verifyData = await verifyRes.json();
