@@ -32,29 +32,37 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server
-async function start() {
-  try {
-    await initDB();
-    app.listen(PORT, () => {
-      console.log(`
-  ╔══════════════════════════════════════╗
-  ║         🚀 NexusAI Server           ║
-  ║                                      ║
-  ║   Local:  http://localhost:${PORT}      ║
-  ║                                      ║
-  ║   Status: Running                    ║
-  ║   DB:     SQLite (local)             ║
-  ║                                      ║
-  ║   Add your API keys in Settings      ║
-  ║   to start using real LLM models!    ║
-  ╚══════════════════════════════════════╝
-      `);
-    });
-  } catch (err) {
-    console.error('Failed to start server:', err);
-    process.exit(1);
+// Start server (only if running locally, not in Vercel)
+if (process.env.NODE_ENV !== 'production' || process.env.RUN_LOCAL === 'true') {
+  async function start() {
+    try {
+      await initDB();
+      app.listen(PORT, () => {
+        console.log(`
+    ╔══════════════════════════════════════╗
+    ║         🚀 NexusAI Server           ║
+    ║                                      ║
+    ║   Local:  http://localhost:${PORT}      ║
+    ║                                      ║
+    ║   Status: Running                    ║
+    ║   DB:     Turso/LibSQL (Async)       ║
+    ║                                      ║
+    ║   Add your API keys in Settings      ║
+    ║   to start using real LLM models!    ║
+    ╚══════════════════════════════════════╝
+        `);
+      });
+    } catch (err) {
+      console.error('Failed to start server:', err);
+      process.exit(1);
+    }
   }
+  start();
+} else {
+  // In production (Vercel), we just initialize the DB connection pool
+  // No need to create tables on every request, we assume they exist or use migrations
+  initDB().catch(console.error);
 }
 
-start();
+// Export the Express app so Vercel can use it as a Serverless Function
+module.exports = app;

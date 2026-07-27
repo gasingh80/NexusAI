@@ -4,9 +4,13 @@ const { getUsageStats } = require('../db/database');
 const router = express.Router();
 
 // Get usage statistics
-router.get('/', (req, res) => {
-  const stats = getUsageStats();
-  res.json(stats);
+router.get('/', async (req, res) => {
+  try {
+    const stats = await getUsageStats();
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

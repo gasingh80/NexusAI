@@ -34,18 +34,19 @@ function calculateCost(model, inputTokens, outputTokens) {
   return (inputTokens / 1_000_000) * pricing.input + (outputTokens / 1_000_000) * pricing.output;
 }
 
-function getApiKey(provider) {
+async function getApiKey(provider) {
   const keyMap = {
     openai: 'apikey_openai',
     anthropic: 'apikey_anthropic',
     google: 'apikey_google',
   };
-  return getSetting(keyMap[provider]) || null;
+  return await getSetting(keyMap[provider]) || null;
 }
 
-function hasApiKey(model) {
+async function hasApiKey(model) {
   const provider = MODEL_PROVIDERS[model];
-  return !!getApiKey(provider);
+  const key = await getApiKey(provider);
+  return !!key;
 }
 
 // Smart Router — classify task and select best model
@@ -59,7 +60,7 @@ const TASK_CATEGORIES = [
   { id: 'summarize', bestModel: 'claude-haiku', fallback: 'gpt-4o-mini', keywords: ['summarize','summary','brief','tldr','key points','condense'] },
 ];
 
-function smartRoute(prompt) {
+async function smartRoute(prompt) {
   const lower = prompt.toLowerCase();
   let bestMatch = null, bestScore = 0;
   for (const cat of TASK_CATEGORIES) {
@@ -71,12 +72,12 @@ function smartRoute(prompt) {
   
   // Check if we have a key for the best model, otherwise use fallback
   let selectedModel = category.bestModel;
-  if (!hasApiKey(selectedModel)) {
+  if (!(await hasApiKey(selectedModel))) {
     selectedModel = category.fallback;
-    if (!hasApiKey(selectedModel)) {
+    if (!(await hasApiKey(selectedModel))) {
       // Find any model with a key
       for (const [model] of Object.entries(MODEL_PROVIDERS)) {
-        if (hasApiKey(model)) { selectedModel = model; break; }
+        if (await hasApiKey(model)) { selectedModel = model; break; }
       }
     }
   }
@@ -87,7 +88,7 @@ function smartRoute(prompt) {
 
 async function* streamResponse(model, messages) {
   const provider = MODEL_PROVIDERS[model];
-  const apiKey = getApiKey(provider);
+  const apiKey = await getApiKey(provider);
 
   if (!apiKey) {
     throw new Error(`No API key configured for ${provider}. Please add your key in Settings.`);

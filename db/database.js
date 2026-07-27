@@ -1,33 +1,25 @@
-const initSqlJs = require('sql.js');
-const fs = require('fs');
-const path = require('path');
+const { createClient } = require('@libsql/client');
 const { v4: uuidv4 } = require('uuid');
+require('dotenv').config();
 
-const DB_PATH = path.join(__dirname, 'nexus.db');
-let db = null;
+// Connect to Turso (or fallback to local file for dev if needed, though we prefer Turso)
+const db = createClient({
+  url: process.env.TURSO_DATABASE_URL || 'file:nexus.db',
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
 async function initDB() {
-  const SQL = await initSqlJs();
-  
-  // Load existing database or create new
-  if (fs.existsSync(DB_PATH)) {
-    const buffer = fs.readFileSync(DB_PATH);
-    db = new SQL.Database(buffer);
-  } else {
-    db = new SQL.Database();
-  }
-
   // Create tables
-  db.run(`
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS conversations (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
       model TEXT DEFAULT 'auto',
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
-  db.run(`
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS messages (
       id TEXT PRIMARY KEY,
       conversation_id TEXT NOT NULL,
@@ -37,17 +29,17 @@ async function initDB() {
       input_tokens INTEGER DEFAULT 0,
       output_tokens INTEGER DEFAULT 0,
       cost REAL DEFAULT 0,
-      created_at TEXT DEFAULT (datetime('now')),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (conversation_id) REFERENCES conversations(id)
     )
   `);
-  db.run(`
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     )
   `);
-  db.run(`
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS usage (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       model TEXT NOT NULL,
@@ -55,147 +47,139 @@ async function initDB() {
       output_tokens INTEGER DEFAULT 0,
       cost REAL DEFAULT 0,
       task_type TEXT DEFAULT 'general',
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
   
-  saveDB();
-  console.log('✅ Database initialized at', DB_PATH);
+  console.log('✅ Turso Database initialized');
   return db;
 }
 
-function saveDB() {
-  if (!db) return;
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  fs.writeFileSync(DB_PATH, buffer);
-}
-
-// Auto-save every 30 seconds
-setInterval(saveDB, 30000);
-
 // ======= CONVERSATIONS =======
-function createConversation(title, model = 'auto') {
+async function createConversation(title, model = 'auto') {
   const id = uuidv4();
-  const now = new Date().toISOString();
-  db.run('INSERT INTO conversations (id, title, model, created_at, updated_at) VALUES (?, ?, ?, ?, ?)', [id, title, model, now, now]);
-  saveDB();
-  return { id, title, model, created_at: now, updated_at: now };
+  await db.execute({
+    sql: 'INSERT INTO conversations (id, title, model) VALUES (?, ?, ?)',
+    args: [id, title, model]
+  });
+  return { id, title, model, created_at: new Date().toISOString() };
 }
 
-function getConversations() {
-  const stmt = db.prepare('SELECT * FROM conversations ORDER BY updated_at DESC');
-  const rows = [];
-  while (stmt.step()) rows.push(stmt.getAsObject());
-  stmt.free();
-  return rows;
+async function getConversations() {
+  const result = await db.execute('SELECT * FROM conversations ORDER BY updated_at DESC');
+  return result.rows;
 }
 
-function getConversation(id) {
-  const stmt = db.prepare('SELECT * FROM conversations WHERE id = ?');
-  stmt.bind([id]);
-  let row = null;
-  if (stmt.step()) row = stmt.getAsObject();
-  stmt.free();
-  return row;
+async function getConversation(id) {
+  const result = await db.execute({
+    sql: 'SELECT * FROM conversations WHERE id = ?',
+    args: [id]
+  });
+  return result.rows[0] || null;
 }
 
-function updateConversation(id, updates) {
-  if (updates.title) db.run('UPDATE conversations SET title = ?, updated_at = datetime("now") WHERE id = ?', [updates.title, id]);
-  if (updates.model) db.run('UPDATE conversations SET model = ?, updated_at = datetime("now") WHERE id = ?', [updates.model, id]);
-  saveDB();
+async function updateConversation(id, updates) {
+  if (updates.title) {
+    await db.execute({
+      sql: 'UPDATE conversations SET title = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      args: [updates.title, id]
+    });
+  }
+  if (updates.model) {
+    await db.execute({
+      sql: 'UPDATE conversations SET model = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      args: [updates.model, id]
+    });
+  }
 }
 
-function deleteConversation(id) {
-  db.run('DELETE FROM messages WHERE conversation_id = ?', [id]);
-  db.run('DELETE FROM conversations WHERE id = ?', [id]);
-  saveDB();
+async function deleteConversation(id) {
+  await db.execute({ sql: 'DELETE FROM messages WHERE conversation_id = ?', args: [id] });
+  await db.execute({ sql: 'DELETE FROM conversations WHERE id = ?', args: [id] });
 }
 
 // ======= MESSAGES =======
-function addMessage(conversationId, role, content, model = null, inputTokens = 0, outputTokens = 0, cost = 0) {
+async function addMessage(conversationId, role, content, model = null, inputTokens = 0, outputTokens = 0, cost = 0) {
   const id = uuidv4();
-  const now = new Date().toISOString();
-  db.run(`INSERT INTO messages (id, conversation_id, role, content, model, input_tokens, output_tokens, cost, created_at) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [id, conversationId, role, content, model, inputTokens, outputTokens, cost, now]);
-  db.run('UPDATE conversations SET updated_at = datetime("now") WHERE id = ?', [conversationId]);
-  saveDB();
+  await db.execute({
+    sql: `INSERT INTO messages (id, conversation_id, role, content, model, input_tokens, output_tokens, cost) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [id, conversationId, role, content, model, inputTokens, outputTokens, cost]
+  });
+  await db.execute({
+    sql: 'UPDATE conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    args: [conversationId]
+  });
   return { id, conversation_id: conversationId, role, content, model, input_tokens: inputTokens, output_tokens: outputTokens, cost };
 }
 
-function getMessages(conversationId) {
-  const stmt = db.prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC');
-  stmt.bind([conversationId]);
-  const rows = [];
-  while (stmt.step()) rows.push(stmt.getAsObject());
-  stmt.free();
-  return rows;
+async function getMessages(conversationId) {
+  const result = await db.execute({
+    sql: 'SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC',
+    args: [conversationId]
+  });
+  return result.rows;
 }
 
 // ======= SETTINGS =======
-function getSetting(key) {
-  const stmt = db.prepare('SELECT value FROM settings WHERE key = ?');
-  stmt.bind([key]);
-  let val = null;
-  if (stmt.step()) val = stmt.getAsObject().value;
-  stmt.free();
-  return val;
+async function getSetting(key) {
+  const result = await db.execute({
+    sql: 'SELECT value FROM settings WHERE key = ?',
+    args: [key]
+  });
+  return result.rows.length > 0 ? result.rows[0].value : null;
 }
 
-function setSetting(key, value) {
-  // Check if exists
-  const existing = getSetting(key);
+async function setSetting(key, value) {
+  const existing = await getSetting(key);
   if (existing !== null) {
-    db.run('UPDATE settings SET value = ? WHERE key = ?', [value, key]);
+    await db.execute({
+      sql: 'UPDATE settings SET value = ? WHERE key = ?',
+      args: [value, key]
+    });
   } else {
-    db.run('INSERT INTO settings (key, value) VALUES (?, ?)', [key, value]);
+    await db.execute({
+      sql: 'INSERT INTO settings (key, value) VALUES (?, ?)',
+      args: [key, value]
+    });
   }
-  saveDB();
 }
 
-function getAllSettings() {
-  const stmt = db.prepare('SELECT * FROM settings');
+async function getAllSettings() {
+  const result = await db.execute('SELECT * FROM settings');
   const settings = {};
-  while (stmt.step()) {
-    const row = stmt.getAsObject();
+  result.rows.forEach(row => {
     settings[row.key] = row.value;
-  }
-  stmt.free();
+  });
   return settings;
 }
 
 // ======= USAGE =======
-function trackUsage(model, inputTokens, outputTokens, cost, taskType = 'general') {
-  const now = new Date().toISOString();
-  db.run('INSERT INTO usage (model, input_tokens, output_tokens, cost, task_type, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-    [model, inputTokens, outputTokens, cost, taskType, now]);
-  saveDB();
+async function trackUsage(model, inputTokens, outputTokens, cost, taskType = 'general') {
+  await db.execute({
+    sql: 'INSERT INTO usage (model, input_tokens, output_tokens, cost, task_type) VALUES (?, ?, ?, ?, ?)',
+    args: [model, inputTokens, outputTokens, cost, taskType]
+  });
 }
 
-function getUsageStats() {
+async function getUsageStats() {
   // Total
-  let stmt = db.prepare('SELECT COALESCE(SUM(cost),0) as total_cost, COALESCE(SUM(input_tokens+output_tokens),0) as total_tokens, COUNT(*) as total_queries FROM usage');
-  stmt.step();
-  const total = stmt.getAsObject();
-  stmt.free();
+  const totalResult = await db.execute('SELECT COALESCE(SUM(cost),0) as total_cost, COALESCE(SUM(input_tokens+output_tokens),0) as total_tokens, COUNT(*) as total_queries FROM usage');
+  const total = totalResult.rows[0];
 
   // By model
-  stmt = db.prepare('SELECT model, SUM(cost) as cost, SUM(input_tokens+output_tokens) as tokens, COUNT(*) as queries FROM usage GROUP BY model ORDER BY cost DESC');
-  const byModel = [];
-  while (stmt.step()) byModel.push(stmt.getAsObject());
-  stmt.free();
+  const byModelResult = await db.execute('SELECT model, SUM(cost) as cost, SUM(input_tokens+output_tokens) as tokens, COUNT(*) as queries FROM usage GROUP BY model ORDER BY cost DESC');
+  const byModel = byModelResult.rows;
 
   // Daily (last 30 days)
-  stmt = db.prepare("SELECT DATE(created_at) as day, SUM(cost) as cost, COUNT(*) as queries FROM usage WHERE created_at >= DATE('now','-30 days') GROUP BY DATE(created_at) ORDER BY day ASC");
-  const daily = [];
-  while (stmt.step()) daily.push(stmt.getAsObject());
-  stmt.free();
+  const dailyResult = await db.execute("SELECT DATE(created_at) as day, SUM(cost) as cost, COUNT(*) as queries FROM usage WHERE created_at >= DATE('now','-30 days') GROUP BY DATE(created_at) ORDER BY day ASC");
+  const daily = dailyResult.rows;
 
   return { total, byModel, daily };
 }
 
 module.exports = {
-  initDB, saveDB,
+  initDB,
   createConversation, getConversations, getConversation, updateConversation, deleteConversation,
   addMessage, getMessages,
   getSetting, setSetting, getAllSettings,
