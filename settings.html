@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - NexusAI</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+    <div id="navbar-slot"></div>
+    
+    <main class="settings-container">
+        <header class="page-header">
+            <h1>Settings</h1>
+            <p>Configure your API keys and preferences</p>
+        </header>
+
+        <div class="settings-grid">
+            <section class="settings-section">
+                <h2>API Keys (BYOK)</h2>
+                <p class="section-desc">Connect your own API keys to use specific models directly.</p>
+                
+                <div class="api-keys-list" id="api-keys-list">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+            <div class="settings-sidebar">
+                <section class="settings-section">
+                    <h2>Preferences</h2>
+                    <div class="pref-row">
+                        <label>Default Model</label>
+                        <select class="input" id="default-model">
+                            <option value="auto">Auto (Smart Router)</option>
+                            <option value="gpt4o">GPT-4o</option>
+                            <option value="claude35">Claude 3.5 Sonnet</option>
+                            <option value="gemini15">Gemini 1.5 Pro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="pref-row toggle-row">
+                        <label>Smart Router</label>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="pref-row">
+                        <label>Budget Limit ($/mo)</label>
+                        <div class="input-prefix">
+                            <span class="prefix">$</span>
+                            <input type="number" class="input" value="20" min="0">
+                        </div>
+                    </div>
+
+                    <div class="pref-row toggle-row">
+                        <label>Budget Alerts</label>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="settings-section danger-zone">
+                    <h2>Danger Zone</h2>
+                    <p class="section-desc">Irreversible actions for your account.</p>
+                    <div class="danger-actions">
+                        <button class="btn btn-outline btn-danger">Reset Settings</button>
+                        <button class="btn btn-outline btn-danger">Delete All Data</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+    <script src="js/models.js"></script>
+    <script src="js/smartRouter.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

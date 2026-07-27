@@ -1,0 +1,27 @@
+{
+  "name": "nexus-ai",
+  "version": "1.0.0",
+  "description": "NexusAI — One Platform. Every AI Model.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "chatbot",
+    "multi-model"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "openai": "^6.49.0",
+    "sql.js": "^1.14.1",
+    "uuid": "^14.0.1"
+  }
+}

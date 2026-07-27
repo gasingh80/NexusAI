@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Mode - NexusAI</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/battle.css">
+</head>
+<body>
+    <div id="navbar-slot"></div>
+    
+    <main class="battle-container container">
+        <header class="battle-header text-center">
+            <h1 class="page-title">Battle Mode ⚔️</h1>
+            <p class="page-subtitle">Compare AI models head-to-head. Select up to 3 models to race.</p>
+        </header>
+
+        <section class="setup-section">
+            <div class="prompt-container">
+                <textarea id="battle-prompt" placeholder="Enter a prompt to test multiple models simultaneously..." rows="4"></textarea>
+            </div>
+            
+            <div class="model-selection-area">
+                <h3 class="section-title text-center">Select Models (Max 3)</h3>
+                <div class="model-chips" id="model-chips">
+                    <!-- Model chips injected via JS -->
+                </div>
+            </div>
+            
+            <div class="action-area text-center">
+                <button class="btn btn-primary btn-lg" id="battle-btn" disabled>
+                    Start Battle!
+                </button>
+            </div>
+        </section>
+
+        <section class="results-section hidden" id="results-section">
+            <div class="battle-grid" id="battle-grid">
+                <!-- Columns injected via JS -->
+            </div>
+            
+            <div class="voting-area hidden" id="voting-area">
+                <h3 class="vote-title text-center">Which response was best?</h3>
+                <div class="vote-buttons" id="vote-buttons">
+                    <!-- Buttons injected via JS -->
+                </div>
+                <div class="vote-thanks hidden" id="vote-thanks">
+                    <span class="check-icon">✓</span> Thanks! Your vote helps train Smart Router.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-slot"></div>
+
+    <!-- Scripts -->
+    <script src="js/models.js"></script>
+    <script src="js/smartRouter.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/battle.js"></script>
+</body>
+</html>

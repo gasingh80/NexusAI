@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - NexusAI</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+    <div id="navbar-slot"></div>
+    
+    <div class="chat-app">
+        <!-- Sidebar -->
+        <aside class="chat-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="btn btn-primary new-chat-btn" id="new-chat-btn">
+                    <span>+</span> New Chat
+                </button>
+            </div>
+            
+            <div class="conversation-list">
+                <div class="conversation-group">
+                    <h4 class="group-title">Today</h4>
+                    <a href="#" class="conversation-item active">
+                        <span class="icon">🧠</span>
+                        <div class="conv-details">
+                            <span class="conv-title">Market research analysis</span>
+                            <span class="conv-time">2 mins ago</span>
+                        </div>
+                    </a>
+                    <a href="#" class="conversation-item">
+                        <span class="icon">✦</span>
+                        <div class="conv-details">
+                            <span class="conv-title">Build a REST API</span>
+                            <span class="conv-time">1 hr ago</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="conversation-group">
+                    <h4 class="group-title">Yesterday</h4>
+                    <a href="#" class="conversation-item">
+                        <span class="icon">◈</span>
+                        <div class="conv-details">
+                            <span class="conv-title">Write blog post about AI</span>
+                            <span class="conv-time">Yesterday</span>
+                        </div>
+                    </a>
+                    <a href="#" class="conversation-item">
+                        <span class="icon">◆</span>
+                        <div class="conv-details">
+                            <span class="conv-title">React vs Vue comparison</span>
+                            <span class="conv-time">Yesterday</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <a href="settings.html" class="settings-link">
+                    <span class="icon">⚙️</span> Settings
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <header class="chat-header">
+                <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+                <div class="model-selector-container">
+                    <button class="model-selector-btn" id="model-selector-btn">
+                        <span class="model-icon" id="current-model-icon">🧠</span>
+                        <span class="model-name" id="current-model-name">Smart Router</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    
+                    <div class="model-dropdown hidden" id="model-dropdown">
+                        <div class="dropdown-search">
+                            <input type="text" placeholder="Search models...">
+                        </div>
+                        <div class="dropdown-list" id="dropdown-list">
+                            <!-- Models will be injected here via JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn">⋮</button>
+                </div>
+            </header>
+            
+            <div class="messages-area" id="messages-area">
+                <div class="message assistant-msg welcome-msg">
+                    <div class="msg-avatar">N</div>
+                    <div class="msg-content">
+                        <p>Hi! I'm NexusAI. Choose a model or let Smart Router pick the best one for you. What can I help you with?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area-container">
+                <div class="input-wrapper">
+                    <button class="attachment-btn">📎</button>
+                    <textarea id="chat-input" placeholder="Message NexusAI..." rows="1"></textarea>
+                    <button class="send-btn" id="send-btn">↑</button>
+                </div>
+                <p class="input-footer">AI can make mistakes. Consider verifying important information.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/models.js"></script>
+    <script src="js/smartRouter.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

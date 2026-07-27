@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cost Dashboard - NexusAI</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div id="navbar-slot"></div>
+    
+    <main class="dashboard-container">
+        <header class="page-header">
+            <h1>Cost Dashboard</h1>
+            <p>Track your AI spending across all models</p>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Spent</h3>
+                <div class="stat-value">$14.32</div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 72%;"></div>
+                </div>
+                <div class="stat-footer">72% of $20 budget</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Queries</h3>
+                <div class="stat-value">847</div>
+                <div class="stat-footer">This month</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Cost/Query</h3>
+                <div class="stat-value">$0.017</div>
+                <div class="stat-footer">Blended average</div>
+            </div>
+            <div class="stat-card">
+                <h3>Most Used Model</h3>
+                <div class="stat-value">✦ GPT-4o</div>
+                <div class="stat-footer">43% of total cost</div>
+            </div>
+        </section>
+
+        <div class="dashboard-main-grid">
+            <section class="chart-section">
+                <h2>Spending by Model</h2>
+                <div class="model-bars">
+                    <div class="model-bar-row">
+                        <div class="model-info">✦ GPT-4o</div>
+                        <div class="bar-container">
+                            <div class="bar gpt" data-target="43"></div>
+                        </div>
+                        <div class="model-stats">$6.20 <span class="muted">(43%)</span></div>
+                    </div>
+                    <div class="model-bar-row">
+                        <div class="model-info">◈ Claude</div>
+                        <div class="bar-container">
+                            <div class="bar claude" data-target="29"></div>
+                        </div>
+                        <div class="model-stats">$4.10 <span class="muted">(29%)</span></div>
+                    </div>
+                    <div class="model-bar-row">
+                        <div class="model-info">✨ Gemini</div>
+                        <div class="bar-container">
+                            <div class="bar gemini" data-target="20"></div>
+                        </div>
+                        <div class="model-stats">$2.80 <span class="muted">(20%)</span></div>
+                    </div>
+                    <div class="model-bar-row">
+                        <div class="model-info">🧠 DeepSeek</div>
+                        <div class="bar-container">
+                            <div class="bar deepseek" data-target="8"></div>
+                        </div>
+                        <div class="model-stats">$1.22 <span class="muted">(8%)</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tips-section">
+                <div class="gradient-card">
+                    <div class="card-content">
+                        <h2>Optimization Tips</h2>
+                        <ul class="tips-list">
+                            <li>💡 34 of your GPT-4o tasks could have used Gemini Flash — saving $3.80/mo</li>
+                            <li>💡 Enable Smart Router to auto-optimize model selection</li>
+                        </ul>
+                        <button class="btn btn-primary mt-4">Enable Smart Router</button>
+                    </div>
+                </div>
+
+                <div class="daily-usage mt-6">
+                    <h2>Daily Usage (Last 7 Days)</h2>
+                    <div class="daily-chart">
+                        <div class="day-col" data-tooltip="$1.20">
+                            <div class="day-bar" style="height: 30%;"></div>
+                            <div class="day-label">Mon</div>
+                        </div>
+                        <div class="day-col" data-tooltip="$2.50">
+                            <div class="day-bar" style="height: 60%;"></div>
+                            <div class="day-label">Tue</div>
+                        </div>
+                        <div class="day-col" data-tooltip="$3.80">
+                            <div class="day-bar" style="height: 90%;"></div>
+                            <div class="day-label">Wed</div>
+                        </div>
+                        <div class="day-col" data-tooltip="$1.80">
+                            <div class="day-bar" style="height: 45%;"></div>
+                            <div class="day-label">Thu</div>
+                        </div>
+                        <div class="day-col" data-tooltip="$0.90">
+                            <div class="day-bar" style="height: 20%;"></div>
+                            <div class="day-label">Fri</div>
+                        </div>
+                        <div class="day-col" data-tooltip="$0.40">
+                            <div class="day-bar" style="height: 10%;"></div>
+                            <div class="day-label">Sat</div>
+                        </div>
+                        <div class="day-col" data-tooltip="$1.50">
+                            <div class="day-bar" style="height: 35%;"></div>
+                            <div class="day-label">Sun</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+    <script src="js/models.js"></script>
+    <script src="js/smartRouter.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

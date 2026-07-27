@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - NexusAI</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pricing.css">
+</head>
+<body>
+    <div id="navbar-slot"></div>
+    
+    <main class="pricing-container">
+        <header class="page-header">
+            <h1>Simple, Transparent Pricing</h1>
+            <p>Start free. Scale as you grow. No hidden fees.</p>
+            
+            <div class="billing-toggle">
+                <span class="label">Monthly</span>
+                <label class="switch">
+                    <input type="checkbox" id="billing-switch">
+                    <span class="slider round"></span>
+                </label>
+                <span class="label">Annual <span class="badge badge-success">Save 20%</span></span>
+            </div>
+        </header>
+
+        <div class="pricing-cards">
+            <!-- Free -->
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <div class="price">
+                    <span class="currency">₹</span>
+                    <span class="amount">0</span>
+                    <span class="period">/mo</span>
+                </div>
+                <p class="desc">For individuals trying out AI.</p>
+                <a href="chat.html" class="btn btn-outline w-100">Get Started Free</a>
+                <ul class="features-list">
+                    <li>✓ 50 messages/day</li>
+                    <li>✓ GPT-4o Mini + Gemini Flash</li>
+                    <li>✓ Basic Smart Router</li>
+                    <li>✓ 7-day history</li>
+                </ul>
+            </div>
+
+            <!-- Pro -->
+            <div class="pricing-card pro gradient-border">
+                <div class="popular-badge">Most Popular</div>
+                <h3>Pro</h3>
+                <div class="price">
+                    <span class="currency">₹</span>
+                    <span class="amount" data-monthly="299" data-annual="239">299</span>
+                    <span class="period">/mo</span>
+                </div>
+                <p class="desc">For power users and developers.</p>
+                <button class="btn btn-primary btn-lg w-100">Start Pro Trial</button>
+                <ul class="features-list">
+                    <li>✓ Unlimited messages</li>
+                    <li>✓ All 10+ models (GPT-4o, Claude 3.5, etc.)</li>
+                    <li>✓ Full Smart Router</li>
+                    <li>✓ Battle Mode</li>
+                    <li>✓ Cost Dashboard</li>
+                    <li>✓ 30-day history</li>
+                </ul>
+            </div>
+
+            <!-- Team -->
+            <div class="pricing-card">
+                <h3>Team</h3>
+                <div class="price">
+                    <span class="currency">₹</span>
+                    <span class="amount" data-monthly="599" data-annual="479">599</span>
+                    <span class="period">/mo per user</span>
+                </div>
+                <p class="desc">For teams scaling AI workflows.</p>
+                <button class="btn btn-outline w-100">Contact Sales</button>
+                <ul class="features-list">
+                    <li>✓ Everything in Pro</li>
+                    <li>✓ Team collaboration</li>
+                    <li>✓ Shared workflows</li>
+                    <li>✓ Admin panel & API access</li>
+                    <li>✓ SSO</li>
+                    <li>✓ Dedicated support</li>
+                </ul>
+            </div>
+        </div>
+
+        <section class="feature-comparison mt-8">
+            <h2 class="text-center mb-4">Compare Features</h2>
+            <div class="table-responsive">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Free</th>
+                            <th>Pro</th>
+                            <th>Team</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Messages</td>
+                            <td>50/day</td>
+                            <td>Unlimited</td>
+                            <td>Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td>Premium Models</td>
+                            <td class="muted">✕</td>
+                            <td class="active">✓</td>
+                            <td class="active">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Smart Router</td>
+                            <td>Basic</td>
+                            <td class="active">Full</td>
+                            <td class="active">Full</td>
+                        </tr>
+                        <tr>
+                            <td>History</td>
+                            <td>7 days</td>
+                            <td>30 days</td>
+                            <td>Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td>API Access</td>
+                            <td class="muted">✕</td>
+                            <td class="muted">✕</td>
+                            <td class="active">✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="faq-section mt-8">
+            <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>Can I bring my own API keys?</summary>
+                    <div class="faq-content">Yes! You can use your own API keys in Settings. When using your own keys, you only pay for the NexusAI platform fee, and model usage is billed directly to your provider accounts.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>What happens if I hit the message limit?</summary>
+                    <div class="faq-content">On the Free plan, you'll be paused until the next day. Pro and Team plans have soft limits to prevent abuse but are generally unlimited for normal human usage.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>Can I cancel anytime?</summary>
+                    <div class="faq-content">Yes, you can cancel your subscription at any time. Your access will remain active until the end of your current billing cycle.</div>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-slot"></div>
+
+    <script src="js/models.js"></script>
+    <script src="js/smartRouter.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/pricing.js"></script>
+</body>
+</html>
