@@ -6,7 +6,7 @@ function renderNavbar() {
     <div class="container">
       <a href="/" class="nav-logo">
         <span class="logo-icon">✦</span>
-        <span>NexusAI</span>
+        <span>Kombat AI</span>
       </a>
       <div class="nav-links hide-mobile">
         <a href="chat.html">Chat</a>
@@ -41,7 +41,7 @@ function renderFooter() {
         <div class="footer-brand">
           <a href="/" class="footer-logo">
             <span class="logo-icon">✦</span>
-            <span>NexusAI</span>
+            <span>Kombat AI</span>
           </a>
           <p class="footer-tagline">One Platform. Every AI Model. Streamline your AI workflow with smart routing.</p>
         </div>
@@ -78,7 +78,7 @@ function renderFooter() {
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; ${new Date().getFullYear()} NexusAI. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Kombat AI. All rights reserved.</p>
         <p class="made-in">Made in India 🇮🇳</p>
       </div>
     </div>

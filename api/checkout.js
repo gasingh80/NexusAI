@@ -16,10 +16,10 @@ router.post('/', async (req, res) => {
 
     // Calculate price based on plan and interval (in INR)
     if (plan === 'pro') {
-      productName = 'NexusAI Pro';
+      productName = 'Kombat AI Pro';
       priceAmount = interval === 'annual' ? 239 * 12 : 299;
     } else if (plan === 'team') {
-      productName = 'NexusAI Team';
+      productName = 'Kombat AI Team';
       priceAmount = interval === 'annual' ? 479 * 12 : 599;
     } else {
       return res.status(400).json({ error: 'Invalid plan selected' });

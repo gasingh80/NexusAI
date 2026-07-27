@@ -1,7 +1,7 @@
 {
   "name": "nexus-ai",
   "version": "1.0.0",
-  "description": "NexusAI — One Platform. Every AI Model.",
+  "description": "Kombat AI — One Platform. Every AI Model.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

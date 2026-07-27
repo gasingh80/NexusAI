@@ -1,6 +1,6 @@
 /* ======= MODELS DATA ======= */
 const MODELS = [
-  { id:'auto', name:'Smart Router', provider:'NexusAI', desc:'Auto-selects the best model for your task', icon:'🧠', color:'#6366f1', inputCost:0, outputCost:0, ctx:'Varies', speed:'Optimized', strengths:['Cost optimization','Best model matching','Learns your preferences'] },
+  { id:'auto', name:'Smart Router', provider:'Kombat AI', desc:'Auto-selects the best model for your task', icon:'🧠', color:'#6366f1', inputCost:0, outputCost:0, ctx:'Varies', speed:'Optimized', strengths:['Cost optimization','Best model matching','Learns your preferences'] },
   { id:'gpt-4o', name:'GPT-4o', provider:'OpenAI', desc:'Great all-rounder for coding, analysis, and creative tasks', icon:'✦', color:'#10a37f', inputCost:2.5, outputCost:10.0, ctx:'128K', speed:'Fast', strengths:['Coding','Analysis','Following instructions'] },
   { id:'gpt-4o-mini', name:'GPT-4o Mini', provider:'OpenAI', desc:'Fast and affordable for everyday tasks', icon:'✦', color:'#10a37f', inputCost:0.15, outputCost:0.6, ctx:'128K', speed:'Very Fast', strengths:['Speed','Cost-effective','Simple tasks'] },
   { id:'claude-sonnet', name:'Claude Sonnet 4', provider:'Anthropic', desc:'Excellent for nuanced writing, analysis, and reasoning', icon:'◈', color:'#d97706', inputCost:3.0, outputCost:15.0, ctx:'200K', speed:'Fast', strengths:['Creative writing','Reasoning','Long documents'] },

@@ -41,7 +41,7 @@ if (process.env.NODE_ENV !== 'production' || process.env.RUN_LOCAL === 'true') {
       app.listen(PORT, () => {
         console.log(`
     ╔══════════════════════════════════════╗
-    ║         🚀 NexusAI Server           ║
+    ║         🚀 Kombat AI Server           ║
     ║                                      ║
     ║   Local:  http://localhost:${PORT}      ║
     ║                                      ║

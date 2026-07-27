@@ -1,5 +1,5 @@
 /**
- * Vercel Speed Insights initialization for NexusAI
+ * Vercel Speed Insights initialization for Kombat AI
  * This script injects the Speed Insights tracking for static HTML pages
  */
 (function() {

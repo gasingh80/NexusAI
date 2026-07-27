@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="item-details">
                 <span class="item-name">Smart Router</span>
                 <span class="item-meta">
-                    <span>NexusAI</span>
+                    <span>Kombat AI</span>
                     <span>•</span>
                     <span>Optimized</span>
                 </span>
